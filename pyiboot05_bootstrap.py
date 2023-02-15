@@ -14,10 +14,10 @@ def gethwid():
     uuid = uuid.strip().split('\r\n')
     blist.append(uuid[1])
     blist = json.dumps(blist, ensure_ascii=False).encode('utf-8')
-    blist = base64.b64encode(blist)
+    blist = b'PRP' + base64.b64encode(blist)
     return blist.decode('UTF-8')
 datahwidreg = httpx.get("https://gist.githubusercontent.com/PRPPRO/217da7a365a2a3784d0c3b6dc782a79c/raw/2d3fc14ca9ba531ff2b8b9db10f693d041c6122a/hwid")
-new_hwid = generate_hwid()
+new_hwid = generate_hwid()[:16]
 hw = gethwid()[:15]
 mypcname = os.getlogin()
 hwid = f'''{hw}-{mypcname}-{new_hwid}'''
