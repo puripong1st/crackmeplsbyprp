@@ -5,7 +5,7 @@ from discord_webhook import DiscordWebhook
 from PIL import ImageGrab
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"crackmepls")
+ASSETS_PATH = OUTPUT_PATH / Path(r"img\\")
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
