@@ -1,3 +1,5 @@
+import random
+import string
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r".img\\")
