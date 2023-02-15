@@ -5,10 +5,9 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 def generate_hwid():
-    raw_hwid = subprocess.check_output('wmic csproduct get uuid', shell=True).strip().decode()
-    hwid = raw_hwid.splitlines()[1]
-    hashed_hwid = hashlib.sha256(hwid.encode()).hexdigest()
-    return hashed_hwid 
+    uuid = subprocess.check_output('wmic csproduct get uuid', shell=False).decode().strip()
+    hashed_hwid = hashlib.sha256(uuid.encode()).hexdigest()
+    return hashed_hwid
 def gethwid():
     blist = []
     uuid = subprocess.check_output('wmic csproduct get uuid', shell=False).decode()
