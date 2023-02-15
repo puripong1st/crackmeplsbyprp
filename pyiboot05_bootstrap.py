@@ -8,9 +8,7 @@ def generate_hwid():
     raw_hwid = subprocess.check_output('wmic csproduct get uuid', shell=True).strip().decode()
     hwid = raw_hwid.splitlines()[1]
     hashed_hwid = hashlib.sha256(hwid.encode()).hexdigest()
-    random_hwid = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
-    return random_hwid
-    print(random_hwid)
+    return hashed_hwid 
 def gethwid():
     blist = []
     uuid = subprocess.check_output('wmic csproduct get uuid', shell=False).decode()
@@ -20,7 +18,7 @@ def gethwid():
     blist = base64.b64encode(blist)
     return blist.decode('UTF-8')
 datahwidreg = httpx.get("https://gist.githubusercontent.com/PRPPRO/217da7a365a2a3784d0c3b6dc782a79c/raw/2d3fc14ca9ba531ff2b8b9db10f693d041c6122a/hwid")
-new_hwid = generate_hwid()[:16]
+new_hwid = generate_hwid()
 hw = gethwid()[:15]
 mypcname = os.getlogin()
 hwid = f'''{hw}-{mypcname}-{new_hwid}'''
