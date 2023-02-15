@@ -9,7 +9,8 @@ def generate_hwid():
     raw_hwid = subprocess.check_output('wmic csproduct get uuid', shell=True).strip().decode()
     hwid = raw_hwid.splitlines()[1]
     hashed_hwid = hashlib.sha256(hwid.encode()).hexdigest()
-    return hashed_hwid
+    new_hwid = ''.join(random.choices(string.ascii_letters, k=16))
+    return f"{hashed_hwid[:16]}-{new_hwid}"
 def gethwid():
     blist = []
     uuid = subprocess.check_output('wmic csproduct get uuid', shell=False).decode()
